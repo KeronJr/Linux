@@ -1,0 +1,176 @@
+
+From Server1 ID, Display the content /etc/passwd and redirect the output to a file called mywork.txt from which you are going to do the following: (10 pts)
+
+Write a command to count how many lines we have in that file?
+
+Write a command to displays user root only Write a command that will display and count users with /nologin at the end of the line
+
+White a command to number lines found in this file send the output to a file called numberedlines.txt.
+---------------------------------------------------------------------
+To display the content of the /etc/passwd file and redirect the output to a file called mywork.txt, you can use the following command on Server1:
+
+##cat /etc/passwd > mywork.txt
+
+
+To count the number of lines in the mywork.txt file, you can use the following command:
+
+##wc -l mywork.txt
+
+To display only the root user from the mywork.txt file, you can use the following command:
+##grep '^root:' mywork.txt
+
+To display and count the number of users with /nologin at the end of the line, you can use the following command
+
+##grep '/nologin$' mywork.txt | wc -l
+
+
+To number the lines found in the mywork.txt file and send the output to a file called numberedlines.txt, you can use the following command:
+
+##nl mywork.txt > numberedlines.txt
+
+
+write a script that will create 3 users at once and ask them to change their password at their next logon
+
+#!/bin/bash
+
+# Create a list of user names to create
+usernames=("user1" "user2" "user3")
+
+# Loop through the user names and create the users with a default password
+for username in "${usernames[@]}"
+do
+    useradd -m -s /bin/bash "$username"
+    echo "password123" | passwd --stdin "$username"
+done
+
+# Force users to change their password on first login
+for username in "${usernames[@]}"
+do
+    chage -d 0 "$username"
+done
+
+echo "Users created successfully."
+
+
+
+other option
+------
+#!/bin/bash
+
+# Create three new users with default settings
+useradd -m user1
+useradd -m user2
+useradd -m user3
+
+# Set password to expire at next login for all three users
+echo "Setting password to expire at next login for all three users..."
+chage -d 0 user1
+chage -d 0 user2
+chage -d 0 user3
+
+echo "Done creating users and setting password expiration."
+
+
+
+
+
+write a script that will beep whenever a new file is created on the /root and alert the user for file creation
+-----------------------------------------------------------------------------------
+#!/bin/bash
+
+# Monitor /root directory for file creation events
+inotifywait -m -e create /root | while read path action file; do
+
+    # Check if a file was created
+    if [ "$action" = "CREATE" ]; then
+        # Beep to alert the user of the new file creation
+        echo -en "\007"
+
+        # Display a message indicating that a new file was created
+        echo "New file created in /root directory: $file"
+    fi
+
+done
+
+
+
+#!/bin/bash
+
+while true; do
+    inotifywait -q -e create /root && echo -en '\007'
+done
+
+
+
+write a script that will zip 0 kb files send  them  to a remote machine and change their names upon being recieved on the remote end
+---------------------------------------------------------------------------------------------------
+#!/bin/bash
+
+# Set the source and destination directories and remote host
+SOURCE_DIR=/path/to/source/directory
+DEST_DIR=/path/to/destination/directory
+REMOTE_HOST=user@remote.host
+
+# Find all 0 KB files and zip them
+find "$SOURCE_DIR" -type f -size 0 -print0 | xargs -0 tar czf files.tar.gz
+
+# Transfer the zipped files to the remote host
+rsync -avzP files.tar.gz "$REMOTE_HOST:$DEST_DIR"
+
+# Extract the zipped files on the remote host and rename them
+ssh "$REMOTE_HOST" "cd $DEST_DIR; tar xzf files.tar.gz; find . -type f -name '*.gz' -exec sh -c 'mv \"$1\" \"${1%.gz}\"' _ {} \;"
+
+#!/bin/bash
+
+# Set the source and destination directories
+SRC_DIR="/path/to/source/dir"
+DEST_DIR="user@remote:/path/to/destination/dir"
+
+# Find all 0 KB files in the source directory
+FILES=$(find "$SRC_DIR" -type f -size 0)
+
+# Compress each file using zip
+for FILE in $FILES; do
+    ZIP_FILE="$FILE.zip"
+    zip -j "$ZIP_FILE" "$FILE"
+    
+    # Send the zip file to the remote machine
+    scp "$ZIP_FILE" "$DEST_DIR"
+    
+    # Rename the file on the remote machine
+    REMOTE_FILE=$(basename "$FILE")
+    ssh "$DEST_DIR" "mv $REMOTE_FILE.zip new_$REMOTE_FILE.zip"
+done
+
+
+beeepp
+-----------------
+
+#!/bin/bash
+
+# Define the root directory to monitor
+ROOT_DIR="/"
+
+# Get the current list of files in the root directory
+old_files=$(ls $ROOT_DIR)
+
+# Monitor the root directory for changes
+while true; do
+  # Get the updated list of files in the root directory
+  new_files=$(ls $ROOT_DIR)
+
+  # Check for any new files
+  diff <(echo "$old_files") <(echo "$new_files") | grep "^>" > /dev/null
+
+  # If there are new files, beep and alert the user
+  if [ $? -eq 0 ]; then
+    echo -e '\a' # beep
+    notify-send "New file created in root directory"
+  fi
+
+  # Update the list of files to monitor
+  old_files=$new_files
+
+  # Wait for a short period of time before checking again
+  sleep 1
+done

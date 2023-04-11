@@ -1,0 +1,116 @@
+make a user not see his password
+---------------------------------
+#! /bin/bash
+read -sp 'Enter password:' password
+echo "password is: $password"
+
+print array of names
+-----------------------
+echo "Enter ur names"
+read -a names
+echo "Names are: ${names[0]},${names[2]}"
+
+print without a variable
+------------------------
+echo "Enter ur names"
+read
+echo "Names are: $REPLY"
+
+operations
+-------------
+greater -gt  >
+less    -lt   <
+greater or eq  -ge  >=
+less or eq  -le  <=
+eq  -eq
+
+if statement
+------------------
+if [ $math -ge 50 -a $eng -ge 50 ]
+if [ $math -ge 50 && $eng -ge 50 ]
+
+to check if it is a regular file
+----------------------------------
+read -p 'File/Directory:' filename
+if [ -f $filename ]
+then
+	echo " It's a file"
+else
+	echo " It's not a file"
+fi
+
+to check if it a file is empty
+----------------------------------
+read -p 'File/Directory:' filename
+if [ -s $filename ]
+then
+	echo " It's not empty"
+else
+	echo " It's empty"
+fi
+
+to check if it is a directory
+----------------------------------
+read -p 'File/Directory:' filename
+if [ -d $filename ]
+then
+	echo " It's a directory"
+else
+	echo " It's not a directory"
+fi
+
+to check if it has write permission
+----------------------------------
+read -p 'File/Directory:' filename
+if [ -w $filename ]
+then
+	echo " Has permission"
+else
+	echo " Has no permission"
+fi
+
+Addition
+-----------------------
+echo " first num"
+read a
+echo " second num"
+read b
+echo addition is $((a+b))
+
+case statement
+------------------------
+echo "Enter a number"
+read a
+case $a in 
+	"1")
+			echo "Sunday"
+	"1")
+			echo "Tue"
+	*)
+			echo "Invalid"
+esac
+
+while loop
+-------------
+echo "Enter a number"
+read a
+while [ $a -le 10 ]
+do
+	echo "$a"
+	((a++))
+done
+
+for loop
+--------------
+for a in {1..10..2}
+do
+	echo "$a"
+	((a++))
+done
+==================================
+for ((a=1;a<10;a++))
+do
+	echo "$a"
+done
+
+

@@ -1,0 +1,501 @@
+ 
+ 
+                        USER MANAGERMENT
+                        ================
+                        
+   1.#su
+   :login as root
+   
+   2.#useradd "userName"
+   :to create user
+   
+   3.#cat /etc/passwd
+   :to display all users
+   
+   4.#groupadd "the name of group"
+   :to create the group
+   
+   5.#cat /etc/group
+   :to display all users and their group
+   
+   6#usermod -a -G group1 user1
+   :we are signning a user1 in the group1
+   :add a user in group
+   
+   7.#mkdir staffdata
+   
+   8.#mkdir employee
+   
+   9.#chown user1 /staffdata/
+   :change the own of directory
+   
+   10.#chown :group1 /staffdata/
+   :change the group own of directory
+   
+   11.#chown user5:group2 /employee
+   :change the user owner and group of directory employee
+   
+   PERMISSIONS
+   ===========
+   r-->readonly   =4
+   w--->writeonly =2
+   x--->executeonly=1
+   
+   12.#chmod 774 /staffdata/
+   :creatting permision on directory staffdata
+   means first 7 from own will have full access
+         second 7 from member of the group will have full too
+         third 4 from others will have to read only access
+    
+    
+    13.#chage -l user1
+    :check all info of the user1
+    
+    14.#passwd user1
+    :to change the password of user1
+    
+    15.#chage -d 0 user1
+    :to make user1 next login to change password.
+    d means day 
+    0 zero days
+    
+    17.#chage -E 12/30/2022 user1
+    :to specify when the user must be espires
+    
+    END
+    @Mashami
+    
+=====================================================================================================================================
+                    ADD USERS SCRIPTS
+                    =================
+                    
+     1.#vim "the name of file".sh
+     
+     -Add this 
+     #!/bin/bash
+     
+     for i in `seq 1 10`
+     
+     do
+     useradd "name of user"$i
+     echo -e "defaultpass\ndefaultpass" | passwd "user name"$i
+     chage -d 0 "user name"$i
+     chage -E "date" "user name"$1
+     
+     done
+     
+     :wq
+     
+     2.#chmod +x "the name of file".sh
+     
+     3.#bash "the name of file".sh
+     
+     
+     DONE
+     @Mashami
+     
+     
+     #!/bin/bash
+     for((i=1;i<=10;i++))do
+      useradd --create-home user$i  -->creating user withtheirhome directory
+     echo -e "auca\nauca" | passwd user$i  --> setting password  pfor the user
+     chage -d 0 user$i  --> changing password at first login
+     usermod -e 2022-03-30 user$i  -->set the expiry of the user account
+     done
+     
+     
+                  TO CHECK STORAGE OF VM SCRIPTS
+                  ==============================
+                  
+     1.#vim "the name of file".sh
+     
+     - -Add this 
+     #!/bin/bash
+     
+     used=$(df -ph |grep '/dev/sda1' | awk {'print $5'})
+     max=20%
+     if [ ${used%?} -ge ${max%?} ]; then
+     echo "Memory used is $used" | mail -v -s "Memory capacity"
+      "your Email".
+      
+     echo $used
+     fi
+     
+     :wq
+     
+     
+     2.#chmod +x "the name of file".sh
+     
+     3.#bash "the name of file".sh
+     
+     
+     DONE
+     @Mashami
+          
+  ===============================================================================================================
+
+IPV4 SUB_INTERFACES CONFIGURATION
+=================================
+
+1.#cd /etc/sysconfig/network-scripts/
+:to change directory to scripts
+
+2.#cat ifcfg-eth0
+:just to view a configuration for eth0
+
+3.#cp 'ifcfg-eth0' 'ifcfg-eth0:1'
+:to copy from ifcfg-eth0 to ifcfg-eth0:1
+
+4.#vim ifcfg-eth0:1
+:Edit the configuration
+      1.DEVICE=eth0:1
+      2.write "ONPARENT= on"
+      3.delete others except IPADDR AND NETMASK
+      and then change ipadrresses
+      will be looking like:
+      DEVICE = eth0:1
+      ONPARENT = on
+      IPADDR = 172.10.0.10
+      NETMASK = 255.255.255.240
+ 
+ 5.#cp 'ifcfg-eth0:1' 'ifcfg-eth0:2'
+ 
+ 6.# vim ifcfg-eth0:2
+ : then edit 1.DEVICE=eth0:2
+             2.ONPARENT = on
+      IPADDR = 10.10.5.3
+      NETMASK = 255.255.255.248
+      
+  7.# ln 'ifcfg-eth0:1' ../networking/devices/
+  :linking to the network
+  8.# ln 'ifcfg-eth0:1' ../networking/profile/default/
+  :linking to the profile 
+  
+ 9. #ln 'ifcfg-eth0:2' ../networking/devices/
+  :linking to the network
+  
+  8.# ln 'ifcfg-eth0:2' ../networking/profile/default/
+  :linking to the profile  
+  
+  10.# service network restart
+  : to restart the network
+  
+  11.system-config-network-tui
+  :to check ether your sub_interfaces are there
+  
+  12: remove your disk redhat
+  13:#reboot :
+    :to reboot your pc in order to get sub_interfaces on to ifconfig.
+    
+    15.# DO THE SAME TO CLIENT !!!
+    
+   DONE
+   @Mashami
+  
+ CONFIGURATIONS OF DHCPV4 TO SUB_INTERFACE
+ ========================================
+ 
+ 1.# cd /etc/dhcp/
+ 
+ 2.#vim /etc/dhcp/dhcpd.conf
+ :copy ips configuration and then past bellow sub net function for eth0:1 do it again for eth0:2
+ 
+ 
+ 3.#service dhcpd configtest
+ :for checking issues
+ 
+  4. system-config-network-tui
+ :add gateways for each eth
+ 
+ 5.#service dhcpd restart
+ :restart dhcp
+ 
+ 6.# ip r
+ :for display dhcp eth0, eth0:1, eth0:2
+ 
+ 7.# service NetworkManager restart
+ 
+ 7. # ifup eth0:1 "ip address for it"
+ 
+ 
+ 9.#service dhcpd restart
+ 
+ client side
+ ==========
+ 1. system-config-network-tui
+ :add dhcp atomatic for each eth
+ 
+ 2. #sercive NetworkManager restart
+ 
+ 3.ifup eth0:1
+ 
+ 4.ifconfig
+ 
+ and do the same to eth0:2 for server and client
+ 
+ END
+ @Mashami
+ 
+ 
+ 
+ =====================================================================================================================================
+             DISPLAY THE STORAGE
+             ===================
+             
+     1.#vim "the name of file".sh
+     
+     -ADD THIS 
+     #!/bin/bash
+     ps -eo pip, ppid,cmd,%mem.%cpu --sort=-%cpu | head -7
+     
+     ps -o pid,user,%mem,%cpu,command | sort -k3 -r
+     
+     ps aux k-pcpu |head -2
+     
+     :wd
+    
+    2.#chmod +x "the name of file".sh
+    
+    3.bash/"the name of file".sh
+    
+    DONE
+    @Mashami
+    
+    -d : checks for directory
+-f : files
+-e : checks if the file exists
+-r : check if file has read permission set
+-w : checks if file has write permission set
+-x : checks if file has execute permission set
+-s : checks if file length is greater than zero
+
+
+                    BACKUP SCRIPTS
+                    ===============
+                    
+      1.#vim "the name of file".sh
+      
+      -ADD this :
+      
+      for i in `seq 1 5`
+      do
+      echo "files" >> /home/mashami/Desktop/file$i.txt
+      done
+      zip backup.zip /home/mashami/Desktop/file*
+      scp backup.zip root@192.168.8.116:/root/
+      
+      :wq
+      
+      2.#chmod +x "the name of file".sh
+    
+      3.bash/"the name of file".sh
+      
+      
+      Done 
+      @Mashami
+      
+      
+=====================================================================================================================================
+    GETTING FILE SCRIPT FROM CLIENT
+    ================================
+    client side
+    1.#touch "name of file"ex: sendingFIle
+    :create a file
+    S
+    Server side
+    1.#vim "filename".sh
+    and then write
+    
+    #!/bin/bash
+    
+    scp "the directory where to get file on the client "ex:root@"the ip address of client"ex: 172.16.0.5:$HOME/sendindFile "where to send the file":/scripts
+    
+scp root@172.26.0.5:/root/sendingFIle /home/mashami/Desktop/file
+    echo "Done getting the file"
+    
+    :wq
+    
+   2.# chmod +x "the name of scripsfile.sh"
+   :giving the permision
+   
+   3.#./"the name of scripsfile.sh"
+   :run
+   
+   
+   SENDING A FILE TO CLIENT
+   ========================
+   
+   1.#touch send
+   :create the file
+   
+   2.vim gettingFile.sh
+   :create scripts
+   
+   
+     #!/bin/bash
+     
+     scp /home/mashami/Desktop "path on server where the file is " root@172.16.0.5:/root/file "the path of client where you wand file to send to"
+     
+     echo "Done to send "
+     
+     :wd 
+     
+     3.#chmod +x "the name of scripsfile.sh" 
+ 
+ 
+     4.#./"the name of scripsfile.sh"  
+       :run
+
+=====================================================================================================================================
+
+
+create user
+===========
+
+
+#!/bin/bash
+
+for i in `seq 1 5`
+do
+
+useradd --create-home Marie$i
+
+echo pass |passwd --stdin Marie$i
+
+chage -d 0 Marie$i
+
+chage -E 2022-10-30 Marie$i
+done
+
+
+resources
+===============
+
+
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head -7
+ps -0 pid,user,%mem,%cpu,command | sort -k3 -r
+pd aux k-pcpu \head -2:
+
+
+zipfile
+=======
+
+#!/bin/bash
+
+for i in `seq 1 5`
+
+do
+
+echo "files">> /root/Desktop/file$i.txt
+done
+
+zip backup.zip /root/Desktop/file*
+scp backup.zip root@(ip):/root/Desktop
+
+
+files are equal
+==============
+
+if diff -u original.txt update.txt > /dev/null
+then
+echo "The files are equal"
+else
+echo "The files are not equal"
+echo
+
+cp original.txt update.txt > file0.diff
+
+echo "changes are made successfullly"
+echo
+echo "files are equal now"
+fi
+
+
+
+sending email
+============
+
+echo "Dear user " \ mail -v -S "Reminder" mariemichaella@gmail.com
+
+for i in `seq 1 5`
+do
+echo "Dear user" > /root/Marie$i/files.txt
+done
+
+crontab -e
+==========
+
+@hourly scp /home/Marie1/files1.txt root @192.168.148.150: Desktop
+
+00 8 * * * bash /root/Desktop/question6.sh
+
+Display the date
+================
+
+currentyear=`date +%b-%d-%Y`
+
+echo "the date of today is $currentyear"
+
+other
+=====
+
+currentyear=`date +%b-%d-%Y`
+
+echo "the date of today is $currentyear"
+
+read Birthday
+
+let calc=$(( $currentyear-$Birthday ))
+
+echo "your age is $calc"
+
+
+list directories
+=================
+
+countFiles=`ls -l | wc -l`
+echo "the number of file is $countFiles"
+
+initialValue=1
+
+if [ $countFiles -eq $initialValue ]
+then
+  echo "create files"
+else
+  echo "ready to go"
+fi
+
+
+
+=====================================================================================================================================
+=====================================================================================================================================
+    
+  
+   
+     
+     
+     
+     
+     
+     
+     
+     
+     
+
+    
+    
+    
+    
+    
+    
+         
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   

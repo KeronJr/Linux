@@ -1,0 +1,35 @@
+q1.
+#! /bin/bash
+count =`ls -l ./ | wc -l`
+name=`date +%M`
+if [ $count -eq 0 ]; then
+touch file{1-5}
+totalfiles=`ls -l ./ | wc -l`
+echo $totalfiles
+tar -acf ./zipped$name.zip ./*
+scp ./zipped$name.zip root@75.75.75.2:/root/Desktop/remote
+else
+totalfiles=`ls -l ./ | wc -l`
+echo $totalfiles
+tar -acf ./zipped$name.zip ./*
+scp ./zipped$name.zip root@75.75.75.2:/root/Desktop/remote
+fi
+
+q2. 
+#! /bin/bash
+cat /etc/passwd | grep root
+
+q3. 
+#! /bin/bash
+echo "enter name:"
+read name
+enter "birth year"
+read year
+currentyr=`date +%G`
+calc=`expr $currentyr - $year
+echo "your name is $name"
+echo "your age is $calc"
+
+q4. 
+#! /bin/bash
+scp root@75.75.75.2:/root/Desktop/file /root/Desktop/
